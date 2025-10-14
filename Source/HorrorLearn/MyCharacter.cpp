@@ -1,22 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MyCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "InputActionValue.h"
+#include "EnhancedInputComponent.h"
+#include "Components/CapsuleComponent.h"
+
 
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//Create the Camera Component
+	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 
 }
 
-// Called when the game starts or when spawned
-void AMyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
@@ -30,5 +27,26 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::MoveInput);
+	}
+
 }
 
+void AMyCharacter::MoveInput(const FInputActionValue& Value)
+{
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	DoMove(MovementVector.X, MovementVector.Y);
+}
+
+void AMyCharacter::DoMove(float Right, float Forward)
+{
+	if (GetController())
+	{
+		//Pass the move inputs
+		AddMovementInput(GetActorRightVector(), Right);
+		AddMovementInput(GetActorForwardVector(), Forward);
+	}
+}

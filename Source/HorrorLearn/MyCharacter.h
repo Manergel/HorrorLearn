@@ -6,7 +6,10 @@
 #include "GameFramework/Character.h"
 #include "MyCharacter.generated.h"
 
+
 class UCameraComponent;
+class UInputAction;
+struct FInputActionValue;
 
 UCLASS()
 class HORRORLEARN_API AMyCharacter : public ACharacter
@@ -17,14 +20,24 @@ class HORRORLEARN_API AMyCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
+protected:
+
+	//Move Input Action
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveAction;
+
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	
+	//Called from Input Actions for movement input
+	void MoveInput(const FInputActionValue& Value);
 
+	//Handles move inputs from either controls or UI
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	virtual void DoMove(float Right, float Forward);
 
 
 public:	
